@@ -174,8 +174,9 @@ public class Window {
 			
 			Matrix4f model = new Matrix4f();
 			model.identity();
-			model.rotate((float)(glfwGetTime() * Math.toRadians(50.0f)), new Vector3f(1.0f, 0.0f, 0.0f), model);
-			model.rotate((float)(glfwGetTime() * Math.toRadians(50.0f)), new Vector3f(0.0f, 1.0f, 0.0f), model);
+			model.rotate((float)(glfwGetTime() * Math.toRadians(50.0f)), new Vector3f(0.5f, 1.0f, 0.0f).normalize(), model);
+
+
 			Matrix4f view = new Matrix4f();
 			view.identity();
 			view.translate(new Vector3f(0.0f, 0.0f, -3.0f), view);
