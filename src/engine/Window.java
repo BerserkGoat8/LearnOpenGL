@@ -19,8 +19,21 @@ public class Window {
 	
 	private long window;
 	private int VAO, VBO, EBO;
+	private float zOffset = -3.0f;
 	private Shader shaderProgram;
 	private Texture container, face;
+	private Vector3f cubePositions[] = {
+			new Vector3f( 0.0f, 0.0f, 0.0f),
+			new Vector3f( 2.0f, 5.0f, -15.0f),
+			new Vector3f(-1.5f, -2.2f, -2.5f),
+			new Vector3f(-3.8f, -2.0f, -12.3f),
+			new Vector3f( 2.4f, -0.4f, -3.5f),
+			new Vector3f(-1.7f, 3.0f, -7.5f),
+			new Vector3f( 1.3f, -2.0f, -2.5f),
+			new Vector3f( 1.5f, 2.0f, -2.5f),
+			new Vector3f( 1.5f, 0.2f, -1.5f),
+			new Vector3f(-1.3f, 1.0f, -1.5f)
+	};
 	
 	public Window() {
 		
@@ -172,19 +185,23 @@ public class Window {
 			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
-			Matrix4f model = new Matrix4f();
-			model.identity();
-			model.rotate((float)(glfwGetTime() * Math.toRadians(50.0f)), new Vector3f(0.5f, 1.0f, 0.0f).normalize(), model);
-
-
+			glBindVertexArray(VAO);
+			for (int i = 0; i < 10; i++) {
+				Matrix4f model = new Matrix4f();
+				model.identity();
+				model.translate(cubePositions[i], model);
+				model.rotate((float)(Math.toRadians(glfwGetTime() * (i + 1) * 20.0f)), new Vector3f(1.0f, 0.3f, 0.5f).normalize(), model);
+				shaderProgram.setMatrix4fv("model", model);
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+			}
+			
 			Matrix4f view = new Matrix4f();
 			view.identity();
-			view.translate(new Vector3f(0.0f, 0.0f, -3.0f), view);
+			view.translate(new Vector3f(0.0f, 0.0f, zOffset), view);
 			Matrix4f projection = new Matrix4f();
 			projection.identity();
 			projection.perspective((float)Math.toRadians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 			
-			shaderProgram.setMatrix4fv("model", model);
 			shaderProgram.setMatrix4fv("view", view);
 			shaderProgram.setMatrix4fv("projection", projection);
 			
@@ -192,9 +209,6 @@ public class Window {
 			glBindTexture(GL_TEXTURE_2D, container.getTexture());
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, face.getTexture());	
-
-			glBindVertexArray(VAO);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
 			
 			glfwSwapBuffers(window);
 			glfwPollEvents();
@@ -206,6 +220,12 @@ public class Window {
 	private void processInput(long window) {
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 			glfwSetWindowShouldClose(window, true);
+		}
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+			zOffset = zOffset + 0.05f;
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+			zOffset = zOffset - 0.05f;
 		}
 	}
 }
