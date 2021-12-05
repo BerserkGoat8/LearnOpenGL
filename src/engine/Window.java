@@ -19,7 +19,6 @@ public class Window {
 	
 	private long window;
 	private int VAO, VBO, EBO;
-	private float zOffset = -3.0f;
 	private Shader shaderProgram;
 	private Texture container, face;
 	private Vector3f cubePositions[] = {
@@ -34,6 +33,9 @@ public class Window {
 			new Vector3f( 1.5f, 0.2f, -1.5f),
 			new Vector3f(-1.3f, 1.0f, -1.5f)
 	};
+	private Vector3f cameraPos = new Vector3f(0.0f, 0.0f, 3.0f);
+	private Vector3f cameraFront = new Vector3f(0.0f, 0.0f, -1.0f);
+	private Vector3f cameraUp = new Vector3f(0.0f, 1.0f, 0.0f);
 	
 	public Window() {
 		
@@ -178,9 +180,13 @@ public class Window {
 	
 	private void loop() {
     
+		float deltaTime = 0.0f;
+		float currentFrame = 0.0f;
+		float lastFrame = 0.0f;
+		
 		while ( !glfwWindowShouldClose(window) ) {
 			
-			processInput(window);
+			processInput(window, deltaTime);
 			
 			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -190,14 +196,14 @@ public class Window {
 				Matrix4f model = new Matrix4f();
 				model.identity();
 				model.translate(cubePositions[i], model);
-				model.rotate((float)(Math.toRadians(glfwGetTime() * (i + 1) * 20.0f)), new Vector3f(1.0f, 0.3f, 0.5f).normalize(), model);
+				model.rotate((float)(Math.toRadians((i + 1) * 20.0f)), new Vector3f(1.0f, 0.3f, 0.5f).normalize(), model);
 				shaderProgram.setMatrix4fv("model", model);
 				glDrawArrays(GL_TRIANGLES, 0, 36);
 			}
 			
 			Matrix4f view = new Matrix4f();
-			view.identity();
-			view.translate(new Vector3f(0.0f, 0.0f, zOffset), view);
+			view.lookAt(cameraPos, new Vector3f(cameraFront.x + cameraPos.x, cameraFront.y + cameraPos.y, cameraFront.z + cameraPos.z), cameraUp);
+
 			Matrix4f projection = new Matrix4f();
 			projection.identity();
 			projection.perspective((float)Math.toRadians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
@@ -213,19 +219,37 @@ public class Window {
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 			
-		}
-		
+			currentFrame = (float) glfwGetTime();
+			deltaTime = currentFrame - lastFrame;
+			lastFrame = currentFrame;
+		}	
 	}
 	
-	private void processInput(long window) {
+	private void processInput(long window, float deltaTime) {
+		float cameraSpeed = 2.5f * deltaTime;
+		
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 			glfwSetWindowShouldClose(window, true);
 		}
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-			zOffset = zOffset + 0.05f;
+			Vector3f product = new Vector3f();
+			cameraFront.mul(cameraSpeed, product);
+			cameraPos.add(product);
 		}
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-			zOffset = zOffset - 0.05f;
+			Vector3f product = new Vector3f();
+			cameraFront.mul(cameraSpeed, product);
+			cameraPos.sub(product);
+		}
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+			Vector3f crossProduct = new Vector3f();
+			cameraFront.cross(cameraUp, crossProduct);
+			cameraPos.sub(crossProduct.normalize().mul(cameraSpeed));
+		}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+			Vector3f crossProduct = new Vector3f();
+			cameraFront.cross(cameraUp, crossProduct);
+			cameraPos.add(crossProduct.normalize().mul(cameraSpeed));
 		}
 	}
 }
