@@ -20,6 +20,7 @@ public class Window {
 	private long window;
 	private int VAO, VBO, EBO;
 	private Shader shaderProgram;
+	private Camera camera;
 	private Texture container, face;
 	private Vector3f cubePositions[] = {
 			new Vector3f( 0.0f, 0.0f, 0.0f),
@@ -33,15 +34,13 @@ public class Window {
 			new Vector3f( 1.5f, 0.2f, -1.5f),
 			new Vector3f(-1.3f, 1.0f, -1.5f)
 	};
-	private Vector3f cameraPos = new Vector3f(0.0f, 0.0f, 3.0f);
-	private Vector3f cameraFront = new Vector3f(0.0f, 0.0f, -1.0f);
-	private Vector3f cameraUp = new Vector3f(0.0f, 1.0f, 0.0f);
 	
 	public Window() {
 		
 	}
 	
 	public void run() {
+		
 		System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
 		init();
@@ -96,6 +95,11 @@ public class Window {
 		glfwMakeContextCurrent(window);
 		// Enable v-sync
 		glfwSwapInterval(1);
+		
+		// Grab cursor
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetCursorPosCallback(window, Camera::mouseCallback);
+		glfwSetScrollCallback(window, Camera::scrollCallback);
 
 		// Make the window visible
 		glfwShowWindow(window);
@@ -176,6 +180,8 @@ public class Window {
 		
 		container = new Texture("textures/container.jpg");
 		face = new Texture("textures/awesomeface.png");
+		
+		camera = new Camera();
 	}
 	
 	private void loop() {
@@ -187,6 +193,7 @@ public class Window {
 		while ( !glfwWindowShouldClose(window) ) {
 			
 			processInput(window, deltaTime);
+			camera.processInput(window, deltaTime);
 			
 			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -200,16 +207,9 @@ public class Window {
 				shaderProgram.setMatrix4fv("model", model);
 				glDrawArrays(GL_TRIANGLES, 0, 36);
 			}
-			
-			Matrix4f view = new Matrix4f();
-			view.lookAt(cameraPos, new Vector3f(cameraFront.x + cameraPos.x, cameraFront.y + cameraPos.y, cameraFront.z + cameraPos.z), cameraUp);
 
-			Matrix4f projection = new Matrix4f();
-			projection.identity();
-			projection.perspective((float)Math.toRadians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-			
-			shaderProgram.setMatrix4fv("view", view);
-			shaderProgram.setMatrix4fv("projection", projection);
+			shaderProgram.setMatrix4fv("view", camera.getViewMatrix());
+			shaderProgram.setMatrix4fv("projection", camera.getProjectionMatrix());
 			
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, container.getTexture());
@@ -226,30 +226,10 @@ public class Window {
 	}
 	
 	private void processInput(long window, float deltaTime) {
-		float cameraSpeed = 2.5f * deltaTime;
-		
+
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 			glfwSetWindowShouldClose(window, true);
 		}
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-			Vector3f product = new Vector3f();
-			cameraFront.mul(cameraSpeed, product);
-			cameraPos.add(product);
-		}
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-			Vector3f product = new Vector3f();
-			cameraFront.mul(cameraSpeed, product);
-			cameraPos.sub(product);
-		}
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-			Vector3f crossProduct = new Vector3f();
-			cameraFront.cross(cameraUp, crossProduct);
-			cameraPos.sub(crossProduct.normalize().mul(cameraSpeed));
-		}
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-			Vector3f crossProduct = new Vector3f();
-			cameraFront.cross(cameraUp, crossProduct);
-			cameraPos.add(crossProduct.normalize().mul(cameraSpeed));
-		}
+		
 	}
 }
