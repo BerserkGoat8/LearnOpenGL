@@ -18,22 +18,12 @@ import static org.lwjgl.opengl.GL30.*;
 public class Window {
 	
 	private long window;
-	private int VAO, VBO, EBO;
-	private Shader shaderProgram;
+	private int VAO, lightVAO, VBO, EBO;
+	private Shader defaultShader;
+	private Shader lightShader;
 	private Camera camera;
 	private Texture container, face;
-	private Vector3f cubePositions[] = {
-			new Vector3f( 0.0f, 0.0f, 0.0f),
-			new Vector3f( 2.0f, 5.0f, -15.0f),
-			new Vector3f(-1.5f, -2.2f, -2.5f),
-			new Vector3f(-3.8f, -2.0f, -12.3f),
-			new Vector3f( 2.4f, -0.4f, -3.5f),
-			new Vector3f(-1.7f, 3.0f, -7.5f),
-			new Vector3f( 1.3f, -2.0f, -2.5f),
-			new Vector3f( 1.5f, 2.0f, -2.5f),
-			new Vector3f( 1.5f, 0.2f, -1.5f),
-			new Vector3f(-1.3f, 1.0f, -1.5f)
-	};
+	private Vector3f lightPos = new Vector3f(1.2f, 1.0f, 2.0f);
 	
 	public Window() {
 		
@@ -152,9 +142,11 @@ public class Window {
 		};
   
 		VAO = glGenVertexArrays();
+		lightVAO = glGenVertexArrays();
 		VBO = glGenBuffers();
 		EBO = glGenBuffers();
 	    
+		// General VAO *************
 		glBindVertexArray(VAO);
 	    
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -171,16 +163,24 @@ public class Window {
         glEnableVertexAttribArray(1);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0); 
-        glBindVertexArray(0);
         
-		shaderProgram = new Shader(window);	
-		shaderProgram.use();
-		shaderProgram.setInt("texture1", 0);
-		shaderProgram.setInt("texture2", 1);
-		
-		container = new Texture("textures/container.jpg");
-		face = new Texture("textures/awesomeface.png");
-		
+        // Light VAO *************
+        glBindVertexArray(lightVAO);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * Float.BYTES, 0);
+        glEnableVertexAttribArray(0);
+        
+        glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);
+        glEnableVertexAttribArray(1);	
+        
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0); 
+        
+        lightShader = new Shader(window, "shaders/light.glsl");	
+        defaultShader = new Shader(window, "shaders/default.glsl");	
+        
 		camera = new Camera();
 	}
 	
@@ -195,26 +195,31 @@ public class Window {
 			processInput(window, deltaTime);
 			camera.processInput(window, deltaTime);
 			
-			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Nice green: 0.2f, 0.3f, 0.3f, 1.0f
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
-			glBindVertexArray(VAO);
-			for (int i = 0; i < 10; i++) {
-				Matrix4f model = new Matrix4f();
-				model.identity();
-				model.translate(cubePositions[i], model);
-				model.rotate((float)(Math.toRadians((i + 1) * 20.0f)), new Vector3f(1.0f, 0.3f, 0.5f).normalize(), model);
-				shaderProgram.setMatrix4fv("model", model);
-				glDrawArrays(GL_TRIANGLES, 0, 36);
-			}
+			Matrix4f model = new Matrix4f();
+			model.identity();
 
-			shaderProgram.setMatrix4fv("view", camera.getViewMatrix());
-			shaderProgram.setMatrix4fv("projection", camera.getProjectionMatrix());
+			defaultShader.use();
+			defaultShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+			defaultShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+			defaultShader.setMatrix4fv("model", model);
+			defaultShader.setMatrix4fv("view", camera.getViewMatrix());
+			defaultShader.setMatrix4fv("projection", camera.getProjectionMatrix());
+			glBindVertexArray(VAO);
+			glDrawArrays(GL_TRIANGLES, 0, 36);	
 			
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, container.getTexture());
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, face.getTexture());	
+			model.identity();
+			model.translate(lightPos, model);
+			model.scale(new Vector3f(0.2f), model);
+			
+			lightShader.use();
+			lightShader.setMatrix4fv("model", model);
+			lightShader.setMatrix4fv("view", camera.getViewMatrix());
+			lightShader.setMatrix4fv("projection", camera.getProjectionMatrix());
+			glBindVertexArray(lightVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
 			
 			glfwSwapBuffers(window);
 			glfwPollEvents();

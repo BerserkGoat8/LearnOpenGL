@@ -13,11 +13,10 @@ import org.lwjgl.BufferUtils;
 
 public class Shader {
 	
-	private static int shaderProgram;
+	private int shaderProgram;
 	
-	public Shader(long window) {
+	public Shader(long window, String filepath) {
 		
-		String filepath = "shaders/default.glsl";
 		String vertexSource = null;
 		String fragmentSource = null;
 		
@@ -113,6 +112,10 @@ public class Shader {
 	
 	public void setInt(String name, int value) {
 		glUniform1i(glGetUniformLocation(shaderProgram, name), value);
+	}
+	
+	public void setVec3(String name, float r, float g, float b) {
+		glUniform3f(glGetUniformLocation(shaderProgram, name), r, g, b);
 	}
 	
 	public void setMatrix4fv(String name, Matrix4f value) {
