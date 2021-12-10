@@ -118,6 +118,10 @@ public class Shader {
 		glUniform3f(glGetUniformLocation(shaderProgram, name), r, g, b);
 	}
 	
+	public void setVec3(String name, Vector3f vec) {
+		glUniform3f(glGetUniformLocation(shaderProgram, name), vec.x, vec.y, vec.z);
+	}
+	
 	public void setMatrix4fv(String name, Matrix4f value) {
 		int varLocation = glGetUniformLocation(shaderProgram, name);
         FloatBuffer matBuffer = BufferUtils.createFloatBuffer(16);

@@ -13,12 +13,12 @@ import org.joml.Vector3f;
 public class Camera {
 	private static float lastX = 400;
 	private static float lastY = 300;
-	private static float yaw = -90.0f;
-	private static float pitch;
+	private static float yaw = -104.4f;
+	private static float pitch = -21.3f;
 	private static float Zoom = 45.0f;
 	private static boolean firstMouse = true;
-	private static Vector3f cameraPos = new Vector3f(0.0f, 0.0f, 3.0f);
-	private static Vector3f cameraFront = new Vector3f(0.0f, 0.0f, -1.0f);
+	private static Vector3f cameraPos = new Vector3f((float)1.233E+0, (float)1.402E+0, (float)3.090E+0);
+	private static Vector3f cameraFront = new Vector3f((float)-2.317E-1, (float)-3.633E-1, (float)-9.024E-1);
 	private static Vector3f cameraUp = new Vector3f(0.0f, 1.0f, 0.0f);
 	private static Vector3f direction = new Vector3f(0.0f, 0.0f, 0.0f);
 	
@@ -29,6 +29,12 @@ public class Camera {
 	public Matrix4f getViewMatrix() {
 		Matrix4f view = new Matrix4f();
 		view.lookAt(cameraPos, new Vector3f(cameraFront.x + cameraPos.x, cameraFront.y + cameraPos.y, cameraFront.z + cameraPos.z), cameraUp);
+		System.out.println(cameraPos);
+		System.out.println(cameraFront);
+		System.out.println(yaw);
+		System.out.println(pitch);
+		System.out.println(cameraUp);
+
 		return view;
 	}
 	public Matrix4f getProjectionMatrix() {

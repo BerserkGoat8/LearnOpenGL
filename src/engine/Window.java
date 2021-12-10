@@ -18,11 +18,9 @@ import static org.lwjgl.opengl.GL30.*;
 public class Window {
 	
 	private long window;
-	private int VAO, lightVAO, VBO, EBO;
-	private Shader defaultShader;
-	private Shader lightShader;
+	private int VAO, lightVAO, VBO;
+	private Shader defaultShader, lightShader;
 	private Camera camera;
-	private Texture container, face;
 	private Vector3f lightPos = new Vector3f(1.2f, 1.0f, 2.0f);
 	
 	public Window() {
@@ -98,53 +96,53 @@ public class Window {
 		glEnable(GL_DEPTH_TEST);
 	        
 		float vertices[] = {
-		        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-		        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-		        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-		        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+				// positions          // normals         // texture coords
+				-0.5f, -0.5f,  -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+				 0.5f, -0.5f,  -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
+				 0.5f,  0.5f,  -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+				 0.5f,  0.5f,  -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+				-0.5f,  0.5f,  -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
+				-0.5f, -0.5f,  -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+				
+				-0.5f, -0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f,
+				 0.5f, -0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 1.0f, 0.0f,
+				 0.5f,  0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 1.0f, 1.0f,
+				 0.5f,  0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 1.0f, 1.0f,
+				-0.5f,  0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f,
+				-0.5f, -0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f,
+				
+				-0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+				-0.5f,  0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+				-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+				-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+				-0.5f, -0.5f,  0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+				-0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+				
+				 0.5f,  0.5f,  0.5f, 1.0f,  0.0f, 0.0f, 1.0f, 0.0f,
+				 0.5f,  0.5f, -0.5f, 1.0f,  0.0f, 0.0f, 1.0f, 1.0f,
+				 0.5f, -0.5f, -0.5f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f,
+				 0.5f, -0.5f, -0.5f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f,
+				 0.5f, -0.5f,  0.5f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,
+				 0.5f,  0.5f,  0.5f, 1.0f,  0.0f, 0.0f, 1.0f, 0.0f,
+				
+				-0.5f, -0.5f, -0.5f, 0.0f,  -1.0f, 0.0f, 0.0f, 1.0f,
+				 0.5f, -0.5f, -0.5f, 0.0f,  -1.0f, 0.0f, 1.0f, 1.0f,
+				 0.5f, -0.5f,  0.5f, 0.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
+				 0.5f, -0.5f,  0.5f, 0.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
+				-0.5f, -0.5f,  0.5f, 0.0f,  -1.0f, 0.0f, 0.0f, 0.0f,
+				-0.5f, -0.5f, -0.5f, 0.0f,  -1.0f, 0.0f, 0.0f, 1.0f,
+				
+				-0.5f, 0.5f,  -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+				 0.5f, 0.5f,  -0.5f, 0.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+				 0.5f, 0.5f,   0.5f, 0.0f,  1.0f, 0.0f, 1.0f, 0.0f,
+				 0.5f, 0.5f,   0.5f, 0.0f,  1.0f, 0.0f, 1.0f, 0.0f,
+				-0.5f, 0.5f,   0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 0.0f,
+				-0.5f, 0.5f,  -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f
 		};
   
 		VAO = glGenVertexArrays();
 		lightVAO = glGenVertexArrays();
 		VBO = glGenBuffers();
-		EBO = glGenBuffers();
 	    
 		// General VAO *************
 		glBindVertexArray(VAO);
@@ -152,15 +150,15 @@ public class Window {
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, vertices.length * Float.BYTES, GL_DYNAMIC_DRAW);
         glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
-
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-//        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
         
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * Float.BYTES, 0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 8 * Float.BYTES, 0);
         glEnableVertexAttribArray(0);
         
-        glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);
+        glVertexAttribPointer(1, 3, GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);
         glEnableVertexAttribArray(1);
+        
+        glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * Float.BYTES, 5 * Float.BYTES);
+        glEnableVertexAttribArray(2);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0); 
         
@@ -169,11 +167,14 @@ public class Window {
         
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * Float.BYTES, 0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 8 * Float.BYTES, 0);
         glEnableVertexAttribArray(0);
         
-        glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);
-        glEnableVertexAttribArray(1);	
+        glVertexAttribPointer(1, 3, GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);
+        glEnableVertexAttribArray(1);
+        
+        glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * Float.BYTES, 5 * Float.BYTES);
+        glEnableVertexAttribArray(2);
         
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0); 
@@ -202,6 +203,7 @@ public class Window {
 			model.identity();
 
 			defaultShader.use();
+			defaultShader.setVec3("lightPos", lightPos);
 			defaultShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 			defaultShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 			defaultShader.setMatrix4fv("model", model);
