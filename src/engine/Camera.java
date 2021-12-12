@@ -29,12 +29,6 @@ public class Camera {
 	public Matrix4f getViewMatrix() {
 		Matrix4f view = new Matrix4f();
 		view.lookAt(cameraPos, new Vector3f(cameraFront.x + cameraPos.x, cameraFront.y + cameraPos.y, cameraFront.z + cameraPos.z), cameraUp);
-		System.out.println(cameraPos);
-		System.out.println(cameraFront);
-		System.out.println(yaw);
-		System.out.println(pitch);
-		System.out.println(cameraUp);
-
 		return view;
 	}
 	public Matrix4f getProjectionMatrix() {
@@ -42,6 +36,10 @@ public class Camera {
 		projection.identity();
 		projection.perspective((float)Math.toRadians(Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
 		return projection;
+	}
+	
+	public Vector3f position() {
+		return cameraPos;
 	}
 	
 	public void processInput(long window, float deltaTime) {

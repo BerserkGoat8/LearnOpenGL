@@ -199,24 +199,34 @@ public class Window {
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Nice green: 0.2f, 0.3f, 0.3f, 1.0f
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
+			float timeValue = (float) glfwGetTime();
+			float r = (float) (Math.sin(timeValue));
+			float g = (float) (Math.sin(timeValue + 2.0f));
+			float b = (float) (Math.sin(timeValue + 4.0f));
+			
 			Matrix4f model = new Matrix4f();
 			model.identity();
 
 			defaultShader.use();
 			defaultShader.setVec3("lightPos", lightPos);
-			defaultShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-			defaultShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+			defaultShader.setVec3("objectColor", 1.0f, 1.0f, 1.0f);
+			defaultShader.setVec3("lightColor", r, g, b);
+			defaultShader.setVec3("viewPos", camera.position());
 			defaultShader.setMatrix4fv("model", model);
 			defaultShader.setMatrix4fv("view", camera.getViewMatrix());
 			defaultShader.setMatrix4fv("projection", camera.getProjectionMatrix());
 			glBindVertexArray(VAO);
 			glDrawArrays(GL_TRIANGLES, 0, 36);	
 			
-			model.identity();
+	        lightPos.x = (float) (1.0f + Math.sin(glfwGetTime()) * 2.0f);
+	        lightPos.y = (float) (Math.sin(glfwGetTime() / 2.0f) * 1.0f);
+			
+			model.identity(	);
 			model.translate(lightPos, model);
 			model.scale(new Vector3f(0.2f), model);
 			
 			lightShader.use();
+			lightShader.setVec3("lightColor", r, g, b);
 			lightShader.setMatrix4fv("model", model);
 			lightShader.setMatrix4fv("view", camera.getViewMatrix());
 			lightShader.setMatrix4fv("projection", camera.getProjectionMatrix());
